@@ -1,2 +1,3 @@
 weather:
+  base-url: https://weather-base-url.com
   key: key

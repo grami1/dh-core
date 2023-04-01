@@ -1,8 +1,8 @@
 package com.grami1.dhcore.service;
 
+import com.grami1.dhcore.config.WeatherApiProperties;
 import com.grami1.dhcore.service.dto.WeatherResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,17 +12,15 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class WeatherApiClient {
 
-    private static final String WEATHER_API_URL = "https://api.weatherapi.com/v1/current.json?key={key}&q={city}&aqi=no";
-
-    @Value("${weather.key}")
-    private String key;
+    private static final String WEATHER_API_URL_PARAMS = "?key={key}&q={city}&aqi=no";
 
     private final WebClient webClient;
     private final ErrorHandler errorHandler;
+    private final WeatherApiProperties properties;
 
     public Mono<WeatherResponse> getWeather(String city) {
         return webClient.get()
-                .uri(WEATHER_API_URL, key, city)
+                .uri(properties.baseUrl() + WEATHER_API_URL_PARAMS, properties.key(), city)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, errorHandler::handleWeatherApiError)
                 .bodyToMono(WeatherResponse.class);

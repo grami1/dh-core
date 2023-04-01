@@ -1,2 +1,3 @@
 weather:
+  base-url: ${weather.base-url}
   key: ${weather.key}
