@@ -1,4 +1,4 @@
-package com.grami1.dhcore.cocnfig;
+package com.grami1.dhcore.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
