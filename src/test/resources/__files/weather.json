@@ -1,0 +1,17 @@
+{
+  "location": {
+    "name": "Madrid",
+    "region": "Madrid",
+    "country": "Spain"
+  },
+  "current": {
+    "last_updated": "2023-04-01 20:30",
+    "temp_c": 16.0,
+    "wind_mph": 21.7,
+    "condition": {
+      "text": "Partly cloudy",
+      "icon": "//cdn.weatherapi.com/weather/64x64/night/116.png"
+    },
+    "humidity": 45
+  }
+}
