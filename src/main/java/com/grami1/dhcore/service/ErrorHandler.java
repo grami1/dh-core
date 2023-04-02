@@ -1,5 +1,6 @@
 package com.grami1.dhcore.service;
 
+import com.grami1.dhcore.exception.UserException;
 import com.grami1.dhcore.exception.WeatherException;
 import com.grami1.dhcore.service.dto.WeatherError;
 import lombok.extern.slf4j.Slf4j;
@@ -18,5 +19,10 @@ public class ErrorHandler {
                             errorResponse.error().message(), clientResponse.statusCode());
                     return Mono.error(new WeatherException("Failed request to WeatherApi"));
                 });
+    }
+
+    public Throwable handleUserError(Throwable error, String message) {
+        log.error(message + ": {}", error.getMessage());
+        return new UserException(message);
     }
 }
