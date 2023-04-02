@@ -4,6 +4,10 @@ spring:
     username: ${postgres.username}
     password: ${postgres.password}
     driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:/db.changelog/changelog.yml
+    user: ${liquibase.user}
+    password: ${liquibase.password}
 
 weather:
   base-url: ${weather.base-url}
