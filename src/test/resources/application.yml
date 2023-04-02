@@ -1,3 +1,8 @@
 weather:
   base-url: http://localhost:8084
   key: key
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: postgresql
