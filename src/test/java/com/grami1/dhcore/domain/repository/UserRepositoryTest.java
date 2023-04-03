@@ -31,4 +31,10 @@ class UserRepositoryTest {
         Optional<User> actualUser = userRepository.findByName("testUser");
         assertEquals("testUser", actualUser.get().getName());
     }
+
+    @Test
+    void when_user_does_not_exist_then_return_empty() {
+        Optional<User> actualUser = userRepository.findByName("testUser1");
+        assertFalse(actualUser.isPresent());
+    }
 }

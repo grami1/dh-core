@@ -10,3 +10,5 @@ spring:
     url: jdbc:tc:postgresql:15.2:///dhcore
     username: name
     password: password
+  liquibase:
+    enabled: false
