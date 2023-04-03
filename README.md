@@ -1,1 +1,1 @@
-# dihome-core project 
+# dh-core project 
