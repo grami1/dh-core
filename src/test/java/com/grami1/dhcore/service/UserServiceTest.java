@@ -39,10 +39,10 @@ class UserServiceTest {
             String username = "testUser";
             when(userRepository.save(any(User.class))).thenReturn(new User(1L, username, Collections.emptyList()));
 
-            Mono<User> actual = userService.createUser(username);
+            Mono<UserDto> actual = userService.createUser(username);
 
             StepVerifier.create(actual)
-                    .expectNextMatches(user -> username.equals(user.getName()))
+                    .expectNextMatches(user -> username.equals(user.userName()) && user.userId() == 1L)
                     .verifyComplete();
 
             verifyNoInteractions(errorHandler);
@@ -55,7 +55,7 @@ class UserServiceTest {
             when(userRepository.save(any(User.class))).thenThrow(HibernateException.class);
             when(errorHandler.handleUserError(any(Throwable.class), anyString())).thenReturn(new UserException(errorMessage));
 
-            Mono<User> actual = userService.createUser(username);
+            Mono<UserDto> actual = userService.createUser(username);
 
             StepVerifier.create(actual)
                     .verifyErrorMatches(error -> error instanceof UserException &&
@@ -74,7 +74,7 @@ class UserServiceTest {
             Mono<UserDto> actual = userService.getUser(username);
 
             StepVerifier.create(actual)
-                    .expectNextMatches(user -> username.equals(user.name()))
+                    .expectNextMatches(user -> username.equals(user.userName()) && user.userId() == 1L)
                     .verifyComplete();
 
             verifyNoInteractions(errorHandler);

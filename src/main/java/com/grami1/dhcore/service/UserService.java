@@ -7,6 +7,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -17,21 +18,23 @@ public class UserService {
     private final UserRepository userRepository;
     private final ErrorHandler errorHandler;
 
-    public Mono<User> createUser(String username) {
-        User user = new User();
-        user.setName(username);
+    @Transactional
+    public Mono<UserDto> createUser(String username) {
+        User user = new User(username);
 
         try {
-            return Mono.just(userRepository.save(user));
+            User savedUser = userRepository.save(user);
+            return Mono.just(new UserDto(savedUser.getId(), savedUser.getName()));
         } catch (Exception e) {
             return Mono.error(errorHandler.handleUserError(e, "Failed to save user " + username));
         }
     }
 
+    @Transactional(readOnly = true)
     public Mono<UserDto> getUser(String username) {
         try {
             return userRepository.findByName(username)
-                    .map(user -> Mono.just(new UserDto(user.getName())))
+                    .map(user -> Mono.just(new UserDto(user.getId(), user.getName())))
                     .orElse(Mono.error(new EntityNotFoundException("User is not found: " + username)));
         } catch (Exception e) {
             return Mono.error(errorHandler.handleUserError(e, "Failed to get user " + username));

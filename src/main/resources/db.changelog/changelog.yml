@@ -7,15 +7,47 @@ databaseChangeLog:
             tableName: users
             columns:
               - column:
-                  name: id
+                  name: areaId
                   type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: name
+                  name: areaName
                   type: varchar(255)
                   constraints:
                     nullable: false
                     unique: true
+  - changeSet:
+      id: 2
+      author: gramil
+      changes:
+        - createTable:
+            tableName: areas
+            columns:
+              - column:
+                  name: areaId
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: areaName
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: false
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    nullable: true
+                    unique: false
+              - addForeignKeyConstraint:
+                  constraintName: fk_area_user
+                  baseTableName: areas
+                  baseColumnNames: user_id
+                  referencedTableName: users
+                  referencedColumnNames: areaId

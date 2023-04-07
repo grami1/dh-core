@@ -1,7 +1,6 @@
 package com.grami1.dhcore.controller;
 
 import com.grami1.dhcore.controller.dto.UserRequestBody;
-import com.grami1.dhcore.domain.model.User;
 import com.grami1.dhcore.service.UserService;
 import com.grami1.dhcore.service.dto.UserDto;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public Mono<ResponseEntity<User>> createUser(@RequestBody UserRequestBody requestBody) {
+    public Mono<ResponseEntity<UserDto>> createUser(@RequestBody UserRequestBody requestBody) {
         String username = requestBody.username();
         log.info("Create user: {}", username);
 

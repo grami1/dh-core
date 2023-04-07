@@ -25,6 +25,15 @@ public class User {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Area> areas = new ArrayList<>();
+
+    public User(String username) {
+        this.name = username;
+    }
+
+    public void addArea(Area area) {
+        areas.add(area);
+        area.setUser(this);
+    }
 }
