@@ -1,6 +1,7 @@
 package com.grami1.dhcore.domain.repository;
 
 import com.grami1.dhcore.domain.model.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,10 +23,14 @@ class UserRepositoryTest {
     @Container
     private static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER = new PostgreSQLContainer<>("postgres:15.2");
 
+    @AfterEach
+    void tearDown() {
+        userRepository.deleteAll();
+    }
+
     @Test
     void when_user_exists_then_find_by_name() {
-        User user = new User();
-        user.setName("testUser");
+        User user = new User("testUser");
         userRepository.save(user);
 
         Optional<User> actualUser = userRepository.findByName("testUser");

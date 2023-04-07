@@ -25,4 +25,8 @@ public class Area {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Area(String name) {
+        this.name = name;
+    }
 }
