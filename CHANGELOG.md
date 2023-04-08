@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.1.0] - 2023-04-08
+- Implement authentication for endpoints
+
 ## [1.0.2] - 2023-04-07
 - Implement area endpoints
 

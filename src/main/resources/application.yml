@@ -8,6 +8,14 @@ spring:
     change-log: classpath:/db.changelog/changelog.yml
     user: ${liquibase.user}
     password: ${liquibase.password}
+  jpa:
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${jwt.issuer}
+          audiences: ${jwt.audience}
 
 weather:
   base-url: ${weather.base-url}
