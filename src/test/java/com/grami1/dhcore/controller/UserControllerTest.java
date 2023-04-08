@@ -17,6 +17,8 @@ import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 
 @WebFluxTest(controllers = UserController.class)
 @AutoConfigureWebTestClient
@@ -37,7 +39,10 @@ class UserControllerTest {
         void when_user_created_then_return_ok() {
             when(userService.createUser(USER_NAME)).thenReturn(Mono.just(new UserDto(1L, USER_NAME)));
 
-            webTestClient.post()
+            webTestClient
+                    .mutateWith(csrf())
+                    .mutateWith(mockJwt())
+                    .post()
                     .uri(USER_URI)
                     .bodyValue(new UserRequestBody(USER_NAME))
                     .exchange()
@@ -55,7 +60,10 @@ class UserControllerTest {
         void when_failed_to_create_user_then_return_error() {
             when(userService.createUser(USER_NAME)).thenReturn(Mono.error(new UserException("Failed to save user " + USER_NAME)));
 
-            webTestClient.post()
+            webTestClient
+                    .mutateWith(csrf())
+                    .mutateWith(mockJwt())
+                    .post()
                     .uri(USER_URI)
                     .bodyValue(new UserRequestBody(USER_NAME))
                     .exchange()
@@ -72,7 +80,9 @@ class UserControllerTest {
         void when_user_exists_then_return_user() {
             when(userService.getUser(USER_NAME)).thenReturn(Mono.just(new UserDto(1L, USER_NAME)));
 
-            webTestClient.get()
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
                     .uri(USER_URI + "/{username}", USER_NAME)
                     .exchange()
                     .expectStatus()
@@ -89,7 +99,9 @@ class UserControllerTest {
         void when_user_does_not_exist_then_return_not_found_error() {
             when(userService.getUser(USER_NAME)).thenReturn(Mono.error(new EntityNotFoundException("User is not found: " + USER_NAME)));
 
-            webTestClient.get()
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
                     .uri(USER_URI + "/{username}", USER_NAME)
                     .exchange()
                     .expectStatus()
@@ -102,7 +114,9 @@ class UserControllerTest {
         void when_failed_to_get_user_then_return_error() {
             when(userService.getUser(USER_NAME)).thenReturn(Mono.error(new UserException("Failed to get user  " + USER_NAME)));
 
-            webTestClient.get()
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
                     .uri(USER_URI + "/{username}", USER_NAME)
                     .exchange()
                     .expectStatus()

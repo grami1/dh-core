@@ -9,11 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @AutoConfigureWireMock(port = 8084)
@@ -41,7 +44,9 @@ class WeatherControllerIntegrationTest {
         );
         WeatherResponse expectedResponse = new WeatherResponse(location, currentWeather);
 
-        webTestClient.get()
+        webTestClient
+                .mutateWith(mockJwt())
+                .get()
                 .uri("/api/v1/weather?city={city}", "Madrid")
                 .exchange()
                 .expectStatus()
@@ -62,7 +67,9 @@ class WeatherControllerIntegrationTest {
 
         ErrorResponse expectedResponse = new ErrorResponse("Failed request to WeatherApi");
 
-        webTestClient.get()
+        webTestClient
+                .mutateWith(mockJwt())
+                .get()
                 .uri("/api/v1/weather?city={city}", "Madrid")
                 .exchange()
                 .expectStatus()

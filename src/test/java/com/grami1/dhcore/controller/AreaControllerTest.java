@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*;
 
 @WebFluxTest(controllers = AreaController.class)
 @AutoConfigureWebTestClient
@@ -37,7 +38,10 @@ class AreaControllerTest {
         void when_area_is_created_then_return_ok() {
             when(areaService.createArea(1L, AREA_NAME)).thenReturn(Mono.just(new AreaDto(1L, AREA_NAME)));
 
-            webTestClient.post()
+            webTestClient
+                    .mutateWith(csrf())
+                    .mutateWith(mockJwt())
+                    .post()
                     .uri(AREAS_URI)
                     .bodyValue(new AreaRequestBody(1L, AREA_NAME))
                     .exchange()
@@ -56,7 +60,10 @@ class AreaControllerTest {
             when(areaService.createArea(1L, AREA_NAME)).
                     thenReturn(Mono.error(new AreaException("Failed to add area " + AREA_NAME + " to user 1")));
 
-            webTestClient.post()
+            webTestClient
+                    .mutateWith(csrf())
+                    .mutateWith(mockJwt())
+                    .post()
                     .uri(AREAS_URI)
                     .bodyValue(new AreaRequestBody(1L, AREA_NAME))
                     .exchange()
@@ -73,7 +80,9 @@ class AreaControllerTest {
         void when_area_exists_then_return_area() {
             when(areaService.getArea(1L)).thenReturn(Mono.just(new AreaDto(1L, AREA_NAME)));
 
-            webTestClient.get()
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
                     .uri(AREAS_URI + "/{areaId}", 1L)
                     .exchange()
                     .expectStatus()
@@ -90,7 +99,9 @@ class AreaControllerTest {
         void when_area_does_not_exist_then_return_not_found_error() {
             when(areaService.getArea(1L)).thenReturn(Mono.error(new EntityNotFoundException("Area is not found by areaId: " + 1L)));
 
-            webTestClient.get()
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
                     .uri(AREAS_URI + "/{areaId}", 1L)
                     .exchange()
                     .expectStatus()
@@ -103,7 +114,9 @@ class AreaControllerTest {
         void when_failed_to_get_area_then_return_error() {
             when(areaService.getArea(1L)).thenReturn(Mono.error(new AreaException("Failed to get area by areaId  " + 1L)));
 
-            webTestClient.get()
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
                     .uri(AREAS_URI + "/{areaId}", 1L)
                     .exchange()
                     .expectStatus()
