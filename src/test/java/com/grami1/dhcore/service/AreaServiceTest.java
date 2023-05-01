@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.*;
 class AreaServiceTest {
 
     private static final String AREA_NAME = "myArea";
+    private static final String USERNAME = "john@doe.com";
 
     @Mock
     AreaRepository areaRepository;
@@ -131,6 +133,65 @@ class AreaServiceTest {
             when(errorHandler.handleAreaError(any(Throwable.class), anyString())).thenReturn(new AreaException(errorMessage));
 
             Mono<AreaDto> actual = areaService.getArea(1L);
+
+            StepVerifier.create(actual)
+                    .verifyErrorMatches(error -> error instanceof AreaException &&
+                            errorMessage.equals(error.getMessage()));
+        }
+    }
+
+    @Nested
+    class GetAreas {
+        @Test
+        void when_areas_exist_then_return_list_of_areas() {
+            Area area = new Area(1L, AREA_NAME, new User());
+            User user = new User(1L, "testUser", List.of(area));
+            when(userRepository.findByName(USERNAME)).thenReturn(Optional.of(user));
+
+            Mono<List<AreaDto>> actual = areaService.getAreas(USERNAME);
+
+            StepVerifier.create(actual)
+                    .expectNextMatches(areas -> AREA_NAME.equals(areas.get(0).areaName()) && areas.get(0).areaId() == 1L)
+                    .verifyComplete();
+
+            verifyNoInteractions(errorHandler);
+        }
+
+        @Test
+        void when_areas_do_not_exist_then_return_empty_list() {
+            User user = new User(1L, "testUser", Collections.emptyList());
+            when(userRepository.findByName(USERNAME)).thenReturn(Optional.of(user));
+
+            Mono<List<AreaDto>> actual = areaService.getAreas(USERNAME);
+
+            StepVerifier.create(actual)
+                    .expectNextMatches(List::isEmpty)
+                    .verifyComplete();
+
+            verifyNoInteractions(errorHandler);
+        }
+
+        @Test
+        void when_user_does_not_exist_then_return_error() {
+            String errorMessage = "User is not found: " + USERNAME;
+
+            when(userRepository.findByName(USERNAME)).thenReturn(Optional.empty());
+
+            Mono<List<AreaDto>> actual = areaService.getAreas(USERNAME);
+
+            StepVerifier.create(actual)
+                    .verifyErrorMatches(error -> error instanceof EntityNotFoundException &&
+                            errorMessage.equals(error.getMessage()));
+        }
+
+        @Test
+        void when_failed_to_get_areas_then_return_error() {
+            String errorMessage = "Failed to get areas by username " + USERNAME;
+
+            when(userRepository.findByName(USERNAME)).thenThrow(HibernateException.class);
+            when(errorHandler.handleAreaError(any(Throwable.class), anyString())).thenReturn(new AreaException(errorMessage));
+
+            Mono<List<AreaDto>> actual = areaService.getAreas(USERNAME);
 
             StepVerifier.create(actual)
                     .verifyErrorMatches(error -> error instanceof AreaException &&

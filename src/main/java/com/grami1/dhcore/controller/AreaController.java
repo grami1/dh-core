@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/areas")
@@ -29,13 +31,23 @@ public class AreaController {
                         .body(area));
     }
 
+    @GetMapping
+    public Mono<ResponseEntity<List<AreaDto>>> getAreas(@RequestParam String username) {
+        log.info("Get all areas by username: {}", username);
+
+        return areaService.getAreas(username)
+                .map(areas -> ResponseEntity
+                        .ok()
+                        .body(areas));
+    }
+
     @GetMapping("/{areaId}")
     public Mono<ResponseEntity<AreaDto>> getArea(@PathVariable Long areaId) {
         log.info("Get area by areaId: {}", areaId);
 
         return areaService.getArea(areaId)
-                .map(user -> ResponseEntity
+                .map(area -> ResponseEntity
                         .ok()
-                        .body(user));
+                        .body(area));
     }
 }

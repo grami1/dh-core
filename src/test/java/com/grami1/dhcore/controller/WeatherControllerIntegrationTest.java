@@ -33,16 +33,8 @@ class WeatherControllerIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("weather.json")));
 
-
-        Location location = new Location("Madrid", "Madrid", "Spain");
-        CurrentWeather currentWeather = new CurrentWeather(
-                "2023-04-01 20:30",
-                16.0,
-                new Condition("Partly cloudy", "//cdn.weatherapi.com/weather/64x64/night/116.png"),
-                21.7,
-                45
-        );
-        WeatherResponse expectedResponse = new WeatherResponse(location, currentWeather);
+        Condition condition = new Condition("Partly cloudy", "//cdn.weatherapi.com/weather/64x64/night/116.png");
+        WeatherDto weatherDto = new WeatherDto(condition, 16.0, 21.7, 45);
 
         webTestClient
                 .mutateWith(mockJwt())
@@ -51,8 +43,8 @@ class WeatherControllerIntegrationTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(WeatherResponse.class)
-                .isEqualTo(expectedResponse);
+                .expectBody(WeatherDto.class)
+                .isEqualTo(weatherDto);
     }
 
     @Test
