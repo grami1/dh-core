@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -37,6 +38,22 @@ public class AreaService {
             return Mono.just(new AreaDto(savedArea.getId(), savedArea.getName()));
         } catch (Exception e) {
             return Mono.error(errorHandler.handleAreaError(e, "Failed to add area " + areaName + " to user " + userId));
+        }
+    }
+
+    @Transactional
+    public Mono<List<AreaDto>> getAreas(String username) {
+        try {
+            Optional<User> user = userRepository.findByName(username);
+            if (user.isEmpty()) {
+                return Mono.error(new EntityNotFoundException("User is not found: " + username));
+            }
+            List<AreaDto> areas = user.get().getAreas().stream()
+                    .map(area -> new AreaDto(area.getId(), area.getName()))
+                    .toList();
+            return Mono.just(areas);
+        } catch (Exception e) {
+            return Mono.error(errorHandler.handleAreaError(e, "Failed to get areas by username " + username));
         }
     }
 

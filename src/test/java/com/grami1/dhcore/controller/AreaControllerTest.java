@@ -15,6 +15,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*;
@@ -25,6 +28,7 @@ class AreaControllerTest {
 
     private static final String AREAS_URI = "/api/v1/areas";
     private static final String AREA_NAME = "myArea";
+    private final static String USERNAME = "john@doe.com";
 
     @Autowired
     private WebTestClient webTestClient;
@@ -118,6 +122,63 @@ class AreaControllerTest {
                     .mutateWith(mockJwt())
                     .get()
                     .uri(AREAS_URI + "/{areaId}", 1L)
+                    .exchange()
+                    .expectStatus()
+                    .is5xxServerError()
+                    .expectBody(ErrorResponse.class)
+                    .isEqualTo(new ErrorResponse("Something went wrong"));
+        }
+    }
+
+    @Nested
+    class GetAreas {
+
+        @Test
+        void when_areas_are_not_empty_then_return_area() {
+            when(areaService.getAreas(USERNAME)).thenReturn(Mono.just(List.of(new AreaDto(1L, AREA_NAME))));
+
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
+                    .uri(AREAS_URI + "?username={username}", USERNAME)
+                    .exchange()
+                    .expectStatus()
+                    .isOk()
+                    .expectBodyList(AreaDto.class)
+                    .consumeWith(result -> {
+                        List<AreaDto> actualAreas = result.getResponseBody();
+                        assertEquals(1, actualAreas.size());
+                        assertEquals(AREA_NAME, actualAreas.get(0).areaName());
+                        assertEquals(1L, actualAreas.get(0).areaId());
+                    });
+        }
+
+        @Test
+        void when_areas_are_empty_then_return_empty_list() {
+            when(areaService.getAreas(USERNAME)).thenReturn(Mono.just(Collections.emptyList()));
+
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
+                    .uri(AREAS_URI + "?username={username}", USERNAME)
+                    .exchange()
+                    .expectStatus()
+                    .isOk()
+                    .expectBodyList(AreaDto.class)
+                    .consumeWith(result -> {
+                        List<AreaDto> actualAreas = result.getResponseBody();
+                        assertEquals(0, actualAreas.size());
+                    });
+        }
+
+        @Test
+        void when_failed_to_get_areas_then_return_error() {
+            when(areaService.getAreas(USERNAME)).thenReturn(Mono.error(new AreaException("Failed to get areas by username  " + USERNAME)));
+
+            webTestClient
+                    .mutateWith(mockJwt())
+                    .get()
+                    .uri(AREAS_URI + "?username={username}", USERNAME)
                     .exchange()
                     .expectStatus()
                     .is5xxServerError()
