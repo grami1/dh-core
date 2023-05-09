@@ -26,6 +26,10 @@ public class WebSecurityConfiguration {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
         return httpSecurity
                 .authorizeExchange()
+                    .pathMatchers(
+                            "/swagger-ui.html",
+                            "/webjars/swagger-ui/**",
+                            "/v3/api-docs/**").permitAll()
                     .anyExchange().authenticated()
                 .and()
                     .oauth2ResourceServer()
