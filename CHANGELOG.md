@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.2] - 2023-05-27
+- Add documentation
+- Add docker compose deployment
+- Update readme description
+
+## [1.1.1] - 2023-05-01
+- Add areas endpoint
+- Update weather endpoint response model
+
 ## [1.1.0] - 2023-04-08
 - Implement authentication for endpoints
 

@@ -3,6 +3,7 @@ package com.grami1.dhcore.controller;
 import com.grami1.dhcore.controller.dto.UserRequestBody;
 import com.grami1.dhcore.service.UserService;
 import com.grami1.dhcore.service.dto.UserDto;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "Create user")
     @PostMapping
     public Mono<ResponseEntity<UserDto>> createUser(@RequestBody UserRequestBody requestBody) {
         String username = requestBody.username();
@@ -29,6 +31,7 @@ public class UserController {
                         .body(user));
     }
 
+    @Operation(summary = "Get user")
     @GetMapping("/{username}")
     public Mono<ResponseEntity<UserDto>> getUser(@PathVariable String username) {
         log.info("Get user: {}", username);
