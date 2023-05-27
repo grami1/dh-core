@@ -1,22 +1,22 @@
 spring:
   datasource:
-    url: ${postgres.url}
-    username: ${postgres.username}
-    password: ${postgres.password}
+    url: ${POSTGRES_URL}
+    username: ${APP_DB_USER}
+    password: ${APP_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   liquibase:
     change-log: classpath:/db.changelog/changelog.yml
-    user: ${liquibase.user}
-    password: ${liquibase.password}
+    user: ${LIQUIBASE_USER}
+    password: ${LIQUIBASE_PASSWORD}
   jpa:
     open-in-view: false
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${jwt.issuer}
-          audiences: ${jwt.audience}
+          issuer-uri: ${JWT_ISSUER}
+          audiences: ${JWT_AUDIENCE}
 
 weather:
-  base-url: ${weather.base-url}
-  key: ${weather.key}
+  base-url: ${WEATHER_URL}
+  key: ${WEATHER_KEY}

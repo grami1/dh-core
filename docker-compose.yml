@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15.2
+    restart: always
+    container_name: dh_core_db
+    env_file:
+      - .env
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./db/init.sh:/docker-entrypoint-initdb.d/init.sh
+  app:
+    depends_on:
+      - db
+    links:
+      - db
+    env_file:
+      - .env
+    container_name: dh_core
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: ${JAR_FILE}
+        POSTGRES_URL: ${POSTGRES_URL}
+        APP_DB_USER: ${APP_DB_USER}
+        APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+        LIQUIBASE_USER: ${LIQUIBASE_USER}
+        JWT_ISSUER: ${JWT_ISSUER}
+        JWT_AUDIENCE: ${JWT_AUDIENCE}
+        WEATHER_URL: ${WEATHER_URL}
+        WEATHER_KEY: ${WEATHER_KEY}
+    image: dhcore:latest
+    ports:
+      - '8080:8080'
