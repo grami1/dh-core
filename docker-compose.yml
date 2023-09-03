@@ -31,6 +31,9 @@ services:
         JWT_AUDIENCE: ${JWT_AUDIENCE}
         WEATHER_URL: ${WEATHER_URL}
         WEATHER_KEY: ${WEATHER_KEY}
+        AWS_REGION: ${AWS_REGION}
+        AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+        AWS_SECRET_KEY-key: ${AWS_SECRET_KEY}
     image: dhcore:latest
     ports:
       - '8080:8080'
