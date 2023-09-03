@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.2.0] - 2023-09-03
+- Add events endpoint
+
 ## [1.1.2] - 2023-05-27
 - Add documentation
 - Add docker compose deployment

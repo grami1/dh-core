@@ -1,6 +1,7 @@
 package com.grami1.dhcore.controller;
 
 import com.grami1.dhcore.controller.dto.ErrorResponse;
+import com.grami1.dhcore.exception.EventException;
 import com.grami1.dhcore.exception.WeatherException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,14 @@ public class GlobalErrorHandlerAdvice {
     @ExceptionHandler(WeatherException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponse> handleWeatherException(WeatherException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(EventException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ErrorResponse> handleWeatherException(EventException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(e.getMessage()));
