@@ -1,5 +1,5 @@
 # DiHome core service
-The service is a core BE part of the DiHome project. It implements the main functionality for handling the data from sensors
+The service is a core BE part of the [DiHome](https://github.com/grami1/dihome) project. It implements the main functionality for handling the data from sensors
 and manages the endpoints required for the [front-end](https://github.com/grami1/dh-web).
 
 ## Authentication
@@ -34,7 +34,7 @@ The dh-core service will be available on the 8080 port.
 ## Token generation in cognito
 In order to send request to dh-core service, the valid token from cognito is required.  
 The flow for getting a token from cognito:
-1. Login in cognito with existing user credentials  
+1. Login in cognito with existing user credentials by url  
 https://app_name.auth.region.amazoncognito.com/login?response_type=code&client_id=your_client_id&redirect_uri=your_redirect_uri.  
 The response will contain an authorization code as a part of redirect uri: `code=AUTHORIZATION_CODE`
 2. Get id token from cognito
