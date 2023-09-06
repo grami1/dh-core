@@ -6,10 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -27,7 +28,7 @@ public class EventRepository {
     public Flux<Event> getEventsBySensorId(String sensorId, int limit) {
         Map<String, String> attributeNames = Map.of(ALIAS_NAME, KEY_NAME);
 
-        Map<String, AttributeValue> attributeValues = Map.of(":" + ALIAS_VALUE , AttributeValue.fromS(sensorId));
+        Map<String, AttributeValue> attributeValues = Map.of(":" + ALIAS_VALUE, AttributeValue.fromS(sensorId));
 
         QueryRequest queryRequest = QueryRequest.builder()
                 .tableName(TABLE_NAME)
@@ -38,17 +39,13 @@ public class EventRepository {
                 .limit(limit)
                 .build();
 
-        try {
-            QueryResponse query = dynamoDbClient.query(queryRequest);
-            List<Event> events = query.items().stream()
-                    .map(this::convert)
-                    .toList();
-            return Flux.fromIterable(events);
+        return Mono.fromCallable(() -> dynamoDbClient.query(queryRequest))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMapMany(response -> Flux.fromIterable(response.items()))
+                .map(this::convert)
+                .doOnError(error -> log.error("Failed to get events from DynamoDB: {}", error.getMessage()))
+                .onErrorMap(error -> new EventException("Failed to get events from DB"));
 
-        } catch (Exception e) {
-            log.error("Failed to get events from DynamoDB: {}", e.getMessage());
-        }
-        return Flux.error(new EventException("Failed to get events from DB"));
     }
 
     private Event convert(Map<String, AttributeValue> attributes) {
