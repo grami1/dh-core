@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -23,88 +24,77 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    UserRepository userRepository;
+    private static final String USERNAME = "testUser";
 
     @Mock
-    ErrorHandler errorHandler;
+    UserRepository userRepository;
 
     @InjectMocks
     UserService userService;
 
     @Nested
     class CreateUser {
+
         @Test
         void when_create_user_then_return_created_user() {
-            String username = "testUser";
-            when(userRepository.save(any(User.class))).thenReturn(new User(1L, username, Collections.emptyList()));
 
-            Mono<UserDto> actual = userService.createUser(username);
+            when(userRepository.save(any(User.class))).thenReturn(new User(1L, USERNAME, List.of()));
+
+            Mono<UserDto> actual = userService.createUser(USERNAME);
 
             StepVerifier.create(actual)
-                    .expectNextMatches(user -> username.equals(user.userName()) && user.userId() == 1L)
+                    .expectNext(new UserDto(1L, USERNAME))
                     .verifyComplete();
-
-            verifyNoInteractions(errorHandler);
         }
 
         @Test
         void when_failed_to_create_user_then_return_error() {
-            String username = "testUser";
-            String errorMessage = "Failed to save user testUser";
             when(userRepository.save(any(User.class))).thenThrow(HibernateException.class);
-            when(errorHandler.handleUserError(any(Throwable.class), anyString())).thenReturn(new UserException(errorMessage));
 
-            Mono<UserDto> actual = userService.createUser(username);
+            Mono<UserDto> actual = userService.createUser(USERNAME);
 
             StepVerifier.create(actual)
-                    .verifyErrorMatches(error -> error instanceof UserException &&
-                            errorMessage.equals(error.getMessage()));
+                    .expectError(UserException.class)
+                    .verify();
         }
     }
 
     @Nested
     class GetUser {
+
         @Test
         void when_user_exists_then_return_user_dto() {
-            String username = "testUser";
-            when(userRepository.findByName(username))
-                    .thenReturn(Optional.of(new User(1L, username, Collections.emptyList())));
+            when(userRepository.findByName(USERNAME))
+                    .thenReturn(Optional.of(new User(1L, USERNAME, Collections.emptyList())));
 
-            Mono<UserDto> actual = userService.getUser(username);
+            Mono<UserDto> actual = userService.getUser(USERNAME);
 
             StepVerifier.create(actual)
-                    .expectNextMatches(user -> username.equals(user.userName()) && user.userId() == 1L)
+                    .expectNext(new UserDto(1L, USERNAME))
                     .verifyComplete();
 
-            verifyNoInteractions(errorHandler);
         }
 
         @Test
-        void when_user_does_not_exist_then_return_error() {
-            String username = "testUser";
-            String errorMessage = "User is not found: testUser";
-            when(userRepository.findByName(username)).thenReturn(Optional.empty());
+        void when_user_does_not_exist_then_return_not_found_error() {
+            when(userRepository.findByName(USERNAME)).thenReturn(Optional.empty());
 
-            Mono<UserDto> actual = userService.getUser(username);
+            Mono<UserDto> actual = userService.getUser(USERNAME);
 
             StepVerifier.create(actual)
-                    .verifyErrorMatches(error -> error instanceof EntityNotFoundException &&
-                            errorMessage.equals(error.getMessage()));
+                    .expectError(EntityNotFoundException.class)
+                    .verify();
         }
 
         @Test
-        void when_failed_to_get_user_then_return_error() {
-            String username = "testUser";
-            String errorMessage = "Failed to get user testUser";
-            when(userRepository.findByName(username)).thenThrow(HibernateException.class);
-            when(errorHandler.handleUserError(any(Throwable.class), anyString())).thenReturn(new UserException(errorMessage));
+        void when_failed_to_get_user_then_return_user_error() {
+            when(userRepository.findByName(USERNAME)).thenThrow(HibernateException.class);
 
-            Mono<UserDto> actual = userService.getUser(username);
+            Mono<UserDto> actual = userService.getUser(USERNAME);
 
             StepVerifier.create(actual)
-                    .verifyErrorMatches(error -> error instanceof UserException &&
-                            errorMessage.equals(error.getMessage()));
+                    .expectError(UserException.class)
+                    .verify();
         }
     }
 }
