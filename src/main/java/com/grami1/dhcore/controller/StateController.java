@@ -18,6 +18,7 @@ public class StateController {
     public Mono<StateResponse> getState() {
         log.info("Getting state");
 
+        // TODO: implement
         return Mono.just(new StateResponse(22.0));
     }
 

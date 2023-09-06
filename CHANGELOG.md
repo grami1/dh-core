@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.2.1] - 2023-09-03
+- Update services to reactive flow
+
 ## [1.2.0] - 2023-09-03
 - Add events endpoint
 
