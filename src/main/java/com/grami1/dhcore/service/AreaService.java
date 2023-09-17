@@ -9,7 +9,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -24,7 +23,6 @@ public class AreaService {
     private final AreaRepository areaRepository;
     private final UserRepository userRepository;
 
-    @Transactional
     public Mono<AreaDto> createArea(long userId, String areaName) {
 
         return Mono.fromCallable(() -> userRepository.findById(userId))
@@ -45,7 +43,6 @@ public class AreaService {
                 .onErrorMap(error -> new AreaException("Failed to create area"));
     }
 
-    @Transactional
     public Mono<List<AreaDto>> getAreas(String username) {
 
         return Mono.fromCallable(() -> userRepository.findByName(username))

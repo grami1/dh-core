@@ -8,7 +8,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -19,7 +18,6 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    @Transactional
     public Mono<UserDto> createUser(String username) {
         User user = new User(username);
 
@@ -31,7 +29,6 @@ public class UserService {
                 .onErrorMap(error -> new UserException("Failed to save user"));
     }
 
-    @Transactional(readOnly = true)
     public Mono<UserDto> getUser(String username) {
         return Mono.fromCallable(() -> userRepository.findByName(username))
                 .subscribeOn(Schedulers.boundedElastic())
